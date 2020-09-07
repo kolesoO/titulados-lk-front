@@ -15,12 +15,16 @@
                     href="javascript:void(0)"
                     class="js-toggle-down d-flex flex-wrap justify-content-end align-items-center col-3 p-0"
                     data-target=".js-chat"
+                    v-if="can_change"
             >
                 <i class="fas fa-comment mr-2"></i>
                 <span class="messages mr-3 col-5 p-0 d-none d-sm-inline">messages</span>
                 <i class="counter col-1 p-0">3</i>
             </a>
-            <div class="js-content js-chat col-12 p-0" style="display: none;">
+            <div
+                    class="js-content js-chat col-12 p-0" style="display: none;"
+                    v-if="can_change"
+            >
                 <div class="chat-wrapper d-flex flex-wrap align-items-center  justify-content-end">
                     <a href="javascript:void(0)" class="js-toggle-up d-flex flex-wrap justify-content-center align-items-center col-5 p-0 text-center" data-target=".js-chat">
                         <span class="col-12 p-0">Свернуть чат</span>
@@ -60,11 +64,12 @@
                 </a>
                 <div class="parts-block d-flex flex-nowrap col-12 p-0 align-items-baseline">
                     <div
+                            v-for="partItem in info.parts"
+                            :id="[getOrderPartIdPrefix(), partItem.id]"
                             :class="[
                                 'part d-flex flex-wrap p-0',
                                 info.parts.length > 2 ? 'col-6 col-xl-4' : (info.parts.length  === 2 ? 'col-6' : 'col-12')
                             ]"
-                            v-for="partItem in info.parts"
                     >
                         <label class="col-12 p-0 text-center part-txt">{{ partItem.name }}</label>
                         <hr class="bg-warning col-12 p-0">
@@ -82,7 +87,10 @@
                                     @click="showDoc(docItem.id)"
                             ></i>
                         </div>
-                        <div class="d-flex flex-wrap col-12 p-0 mt-3">
+                        <div
+                                class="d-flex flex-wrap col-12 p-0 mt-3"
+                                v-if="can_change && isInProgress(partItem.status)"
+                        >
                             <i class="fas fa-paperclip mr-2"></i>
                             <p
                                     class="part-txt"
@@ -91,7 +99,8 @@
                         </div>
                         <button
                                 class="btn btn-warning button-round mb-3"
-                                @click="acceptOrderPart(partItem.id)"
+                                v-if="can_change && isInProgress(partItem.status)"
+                                @click="acceptOrderPart(partItem.id, $event)"
                         >Accept</button>
                     </div>
                 </div>
@@ -101,15 +110,26 @@
 </template>
 
 <script>
+    import OrderEntity from "../../../entities/OrderEntity";
+    import Endpoint from "../../../services/Endpoint";
+    import Message from "../../../services/Message";
+    import MessageEntity from "../../../entities/MessageEntity";
+    import DOMHelper from "../../../services/DOMHelper";
     export default {
         name: "v-order-student",
-        props: ['info'],
+        props: ['info', 'can_change'],
         methods: {
+            isInProgress(status) {
+                return OrderEntity.IN_PROGRESS_STATUS === status;
+            },
             getReadyPercent() {
                 return this.info.readiness + '%';
             },
             getReadyPercentString() {
                 return 'width: ' + this.getReadyPercent();
+            },
+            getOrderPartIdPrefix() {
+                return 'order_part-';
             },
             showDoc(id) {
                 alert('doc id - ' + id);
@@ -117,11 +137,31 @@
             changeOrderPart(id) {
                 alert('order part id - ' + id);
             },
-            acceptOrderPart(id){
-                alert('accept part id - ' + id);
+            acceptOrderPart(id, event){
+                let nodeId = this.getOrderPartIdPrefix() + id;
+
+                DOMHelper.lockFormButton(event.target, true);
+                DOMHelper.lockNode(
+                    document.getElementById(nodeId),
+                    true
+                );
+                this.$http.post(
+                    Endpoint.getBySuffix('/my/orders/' + id + '/accept')
+                )
+                    .then(() => {
+                        Message.show(
+                            new MessageEntity('Order part successfully accepted')
+                        );
+                        DOMHelper.lockFormButton(event.target, false);
+                        DOMHelper.lockNode(
+                            document.getElementById(nodeId),
+                            false
+                        );
+                    })
+                    .catch(err => {
+                        Message.show(err);
+                    })
             }
-        },
-        mounted() {
         }
     }
 </script>

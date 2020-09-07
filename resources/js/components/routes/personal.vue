@@ -158,6 +158,7 @@
     import Endpoint from "../../services/Endpoint";
     import Message from "../../services/Message";
     import DOMHelper from "../../services/DOMHelper";
+    import MessageEntity from '../../entities/MessageEntity';
     export default {
         name: 'v-personal',
         components: {VPersonalTeacher, VPersonalStudent},
@@ -228,7 +229,9 @@
                     new FormData(event.target)
                 )
                     .then(() => {
-                        Message.show('Password successfully updated');
+                        Message.show(
+                            new MessageEntity('Password successfully updated')
+                        );
                         DOMHelper.lockFormButton(event.target, false);
                     })
                     .catch(err => {
@@ -240,7 +243,9 @@
                 DOMHelper.lockFormButton(event.target, true);
                 UserState.dispatch('updateMe', new FormData(event.target))
                     .then(() => {
-                        Message.show('Data successfully updated');
+                        Message.show(
+                            new MessageEntity('Data successfully updated')
+                        );
                         DOMHelper.lockFormButton(event.target, false);
                     })
                     .catch(err => {

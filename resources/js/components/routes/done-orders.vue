@@ -5,14 +5,14 @@
                 v-for="order in list"
                 :key="order.id"
                 :info="order"
-                :can_change=true
+                :can_change=false
         ></StudentOrder>
         <TeacherOrder
                 v-else
                 v-for="order in list"
                 :key="order.id"
                 :info="order"
-                :can_change=true
+                :can_change=false
         ></TeacherOrder>
         <p v-if="is_empty">Order list is empty</p>
     </div>
@@ -28,11 +28,11 @@
     import Message from "../../services/Message";
     import OrderEntity from "../../entities/OrderEntity";
     export default {
-        name: "active-orders",
+        name: "done-orders",
         routerData: {
-            path: '/active-orders',
+            path: '/done-orders',
             meta: {
-                title: 'Active orders',
+                title: 'Done orders',
                 requiresAuth: true
             }
         },
@@ -57,7 +57,7 @@
             let ctx = this;
 
             this.$http.get(
-                Endpoint.getBySuffix('/my/orders?filter[status][]=' + OrderEntity.NEW_STATUS + '&filter[status][]=' + OrderEntity.IN_PROGRESS_STATUS)
+                Endpoint.getBySuffix('/my/orders?filter[status]=' + OrderEntity.DONE_STATUS)
             )
                 .then(response => {
                     ctx.list = response.data.data;
