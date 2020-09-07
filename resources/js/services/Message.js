@@ -2,10 +2,10 @@ export default {
     getNode: function () {
         return document.getElementById('sys-message');
     },
-    show: function (msg) {
+    show: function (err) {
         let node = this.getNode();
 
-        node.innerText = msg;
+        node.innerText = err.message;
         node.classList.add('active');
 
         setTimeout(function () {

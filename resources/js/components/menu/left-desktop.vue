@@ -21,36 +21,49 @@
                 </div>
             </router-link>
         </li>
-        <!--li>Сделать заказ</li>
-        <li class="d-flex justify-content-between align-items-center">
-            <span>В обработке</span>
-            <i class="icon icon-counter">3</i>
+        <li>
+            <router-link
+                    :key="done_orders.path"
+                    :to="done_orders.path"
+            >{{ done_orders.meta.title }}</router-link>
         </li>
-        <li class="d-flex justify-content-between align-items-center">
-            <span>Активные</span>
-            <div class="col-xl-6 d-flex p-0 justify-content-between">
-                <i class="icon icon-counter-active">
-                    <i class="fas fa-comment"></i>10
-                </i>
-                <i class="icon icon-counter">3</i>
-            </div>
+        <li v-if="isTeacher()">
+            <router-link
+                    :key="available_orders.path"
+                    :to="available_orders.path"
+            >{{ available_orders.meta.title }}</router-link>
         </li>
-        <li>Уточнения</li>
-        <li>Оплата</li>
-        <li>Выполненные работы</li>
-        <li>Мои данные</li-->
     </ul>
 </template>
 
 <script>
     import IndexRoute from '../routes/index';
     import ActiveOrdersRoute from '../routes/active-orders';
+    import DoneOrdersRoute from '../routes/done-orders';
+    import AvailableOrdersRoute from '../routes/available-orders';
+    import UserState from "../../states/UserState";
+    import UserType from "../../services/UserType";
     export default {
         name: "v-menu-left-desktop",
+        computed: {
+            user() {
+                return UserState.getters.user;
+            }
+        },
+        methods: {
+            isStudent() {
+                return UserType.isStudent(this.user.type);
+            },
+            isTeacher() {
+                return UserType.isTeacher(this.user.type);
+            }
+        },
         data: function () {
             return {
                 index: IndexRoute.routerData,
                 active_orders: ActiveOrdersRoute.routerData,
+                done_orders: DoneOrdersRoute.routerData,
+                available_orders: AvailableOrdersRoute.routerData
             }
         }
     }

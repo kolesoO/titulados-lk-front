@@ -15,7 +15,7 @@
                 UserState
                     .dispatch('logout')
                     .then(() => this.$router.push('/guest'))
-                    .catch(err => Message.show(err, false, 3000))
+                    .catch(err => Message.show(err))
             }
         }
     }

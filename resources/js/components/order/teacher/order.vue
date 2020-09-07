@@ -5,6 +5,6 @@
 <script>
     export default {
         name: "v-order-teacher",
-        props: ['info'],
+        props: ['info', 'can_change'],
     }
 </script>

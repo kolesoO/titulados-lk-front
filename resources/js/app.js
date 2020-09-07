@@ -6,13 +6,9 @@ import UserState from "./states/UserState";
 import Message from "./services/Message";
 import DOMHelper from "./services/DOMHelper";
 import Config from "./repositories/Config";
+import MessageEntity from './entities/MessageEntity';
 import { RouterComponents, routerData } from './routes';
-
-import TopMenuComponent from './components/menu/top';
-import LeftDesktopMenuComponent from './components/menu/left-desktop';
-import LeftMenu from './components/menu/left';
-import FooterMobileMeny from './components/menu/footer-mobile';
-import ShortInfoHeader from './components/header/short-info';
+import RootComponent from './components/root';
 
 const router = new VueRouter({mode: 'history'});
 
@@ -25,11 +21,7 @@ Object.keys(RouterComponents).forEach((componentName) => {
     Vue.component(componentName, componentConfig.default || componentConfig);
 });
 
-Vue.component(TopMenuComponent.name, TopMenuComponent);
-Vue.component(LeftDesktopMenuComponent.name, LeftDesktopMenuComponent);
-Vue.component(ShortInfoHeader.name, ShortInfoHeader);
-Vue.component(LeftMenu.name, LeftMenu);
-Vue.component(FooterMobileMeny.name, FooterMobileMeny);
+Vue.component(RootComponent.name, RootComponent);
 //end
 
 //регистрация маршрутов
@@ -57,15 +49,19 @@ app = new Vue({
         navigation: routerData
     },
     created: function () {
-        Message.show('Try to authorize');
+        Message.show(
+            new MessageEntity('Try to authorize')
+        );
         UserState.dispatch('me')
             .then(() => {
-                Message.show('Authorization completed successfully');
+                Message.show(
+                    new MessageEntity('Authorization completed successfully')
+                );
                 DOMHelper.lockRootNode(false);
                 this.$router.push('/index');
             })
             .catch(err => {
-                Message.show(err.body);
+                Message.show(err);
                 // setTimeout(function () {
                 //     location.href = Config.getPublicHost();
                 // }, 3000);
